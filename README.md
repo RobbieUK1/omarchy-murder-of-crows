@@ -1,6 +1,6 @@
 # Murder of Crows
 
-A dark Omarchy theme with charcoal blacks, ash text, and cool pewter accents. Eleven original crow wallpapers pair atmospheric wildlife photography with mist, weathered stone, and quiet landscapes.
+A true-black OLED Omarchy theme with pure `#000000` interface backgrounds, ash text, and cool pewter accents. Eleven original crow wallpapers pair atmospheric wildlife photography with mist, weathered stone, and quiet landscapes.
 
 ![Solitude](backgrounds/01-solitude.png)
 
@@ -37,7 +37,9 @@ omarchy theme bg next
 
 ## Palette
 
-- Background: `#101114`
+- Background: `#000000` (true OLED black)
+- Dark and darker backgrounds: `#000000`
+- Raised surfaces: `#202329` (for visual separation)
 - Foreground: `#d6d8de`
 - Accent: `#b5bdc9`
 - Selection: `#323740`
