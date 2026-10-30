@@ -1,0 +1,15 @@
+MURDER OF CROWS — WALLPAPERS FOR MAC
+
+This ZIP contains 11 original PNG wallpapers from the Murder of Crows
+Omarchy theme by RobbieUK1. No Linux software is needed.
+
+TO USE ON A MAC
+1. Unzip the downloaded file.
+2. Open System Settings > Wallpaper.
+3. Choose Add Folder (or Add Photo, depending on macOS version)
+   and select a picture or the extracted folder.
+4. Choose your favourite wallpaper, or select a rotation option.
+
+All images are original full-quality PNGs, unchanged from the theme.
+
+Source: https://github.com/RobbieUK1/omarchy-murder-of-crows
