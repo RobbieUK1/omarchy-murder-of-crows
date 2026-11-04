@@ -51,3 +51,65 @@ Omarchy generates supported application configurations from `colors.toml`. The t
 Created with the built-in imagegen tool. The original prompt set used widescreen gothic wildlife fine-art photography: a solitary crow on a bare branch, a pair, and a loose flying flock. All use charcoal blacks, faint cool pewter highlights, and generous negative space.
 
 The eight additional prompts are recorded in [PROMPTS.md](PROMPTS.md). Each image was generated separately for this collection.
+
+## Optional independent wallpapers per monitor
+
+On Omarchy releases with the **Quickshell shell background plugin**, enable
+the add-on explicitly after installing the theme:
+
+```sh
+git clone https://github.com/RobbieUK1/omarchy-murder-of-crows.git
+cd omarchy-murder-of-crows
+bash scripts/install-randomizer.sh
+```
+
+Use the usual **Super + Ctrl + Space** picker or `omarchy theme bg next`.
+Confirming any image reshuffles all currently connected displays, including
+when you confirm the same picker image again. The clicked image is the trigger;
+it is not pinned to a particular monitor. Canceling the picker keeps the current
+arrangement. Connecting or disconnecting a monitor also reshuffles the set.
+
+The add-on chooses from this theme's still images and your additional images in
+`~/.config/omarchy/backgrounds/murder-of-crows/`. It avoids duplicate images
+across monitors when there are enough, and avoids each monitor's previous image
+when feasible. One image works normally; with fewer images than monitors,
+duplicates are necessary. Video files are excluded from the random pool.
+The normal current-background link remains the picker's selection, so lock-screen
+and other tools reading that link continue to see a single selected wallpaper.
+
+This installs a user-owned `crows.background` clone of your installed stock
+renderer under `~/.config/omarchy/plugins/`. It retains the stock renderer's
+IPC, click handling, theme colors and behavior outside Murder of Crows.
+Randomized stills change directly rather than sharing the stock single-image
+reveal animation. No theme palette or artwork is modified.
+
+Requires Python 3 and the Omarchy shell/plugin commands. Older swaybg/swww
+installations and changed renderer source layouts fail the compatibility check
+before replacing anything. Existing custom background clones must be disabled
+first. Re-running the installer rebuilds from the installed Omarchy version
+and saves any previous `crows.background` directory as a timestamped backup.
+After an Omarchy update, rerun the installer to pick up renderer changes.
+
+Disable the add-on and restore the stock renderer:
+
+```sh
+bash scripts/install-randomizer.sh --remove
+```
+
+Disabling retains the plugin files and backups for recovery; it does not remove
+wallpapers or change the theme. Installing a theme alone does not run scripts.
+
+### Development checks
+
+```sh
+node tests/randomize.test.cjs
+python3 -B -m unittest discover -s tests -v
+bash -n scripts/install-randomizer.sh
+```
+
+Tests cover repeated independent assignment, no avoidable duplicates/repeats,
+monitor-list changes, empty/single/short image pools, theme scoping, filename
+handling, and fail-closed generation against the locally installed renderer.
+A real multi-monitor Hyprland session should additionally be checked for picker
+confirmation/cancellation, restart, hotplug and switching to another theme.
+

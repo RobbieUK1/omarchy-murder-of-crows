@@ -1,0 +1,48 @@
+  // Murder of Crows: independent stills, using the stock background renderer.
+  property var monitorBackgrounds: ({})
+  property bool shufflePending: false
+  readonly property bool randomizing: Object.keys(monitorBackgrounds).length > 0
+
+  function requestShuffle() {
+    shufflePending = true
+    shuffleTimer.restart()
+  }
+
+  Timer {
+    id: shuffleTimer
+    interval: 30
+    onTriggered: {
+      if (crowFiles.running) return
+      root.shufflePending = false
+      crowFiles.running = true
+    }
+  }
+
+  Process {
+    id: crowFiles
+    command: ["python3", root.home + "/.config/omarchy/plugins/crows.background/list-backgrounds.py"]
+    stdout: StdioCollector { id: crowFilesOutput }
+    onExited: function(exitCode) {
+      if (root.shufflePending) { shuffleTimer.restart(); return }
+      if (exitCode !== 0) {
+        console.warn("Crow background scan failed; restoring stock wallpaper")
+        root.monitorBackgrounds = ({})
+        return
+      }
+      try {
+        var files = JSON.parse(crowFilesOutput.text)
+        var names = Quickshell.screens.map(function(screen) { return screen.name })
+        var chosen = CrowRandom.assign(names, files, root.monitorBackgrounds)
+        Object.keys(chosen).forEach(function(name) { root.requestNativeSize(chosen[name]) })
+        root.monitorBackgrounds = chosen
+      } catch (error) {
+        console.warn("Crow background scan: " + error)
+        root.monitorBackgrounds = ({})
+      }
+    }
+  }
+
+  Connections {
+    target: Quickshell
+    function onScreensChanged() { root.requestShuffle() }
+  }
