@@ -4,14 +4,21 @@ A true-black OLED Omarchy theme with pure `#000000` interface backgrounds, ash t
 
 ![Solitude](backgrounds/01-solitude.png)
 
-## Install
+## Install the complete theme
 
 ```sh
-omarchy theme install https://github.com/RobbieUK1/omarchy-murder-of-crows
-omarchy theme set "Murder of Crows"
+git clone https://github.com/RobbieUK1/omarchy-murder-of-crows.git
+cd omarchy-murder-of-crows
+bash install.sh
 ```
 
-Omarchy installs repository themes using the repository name after removing the `omarchy-` prefix.
+This single setup installs the theme, activates it, and enables its built-in
+multi-monitor wallpaper behavior. Requires the current Omarchy Quickshell shell
+and Python 3. The standard `omarchy theme install` command only installs static
+theme files; Omarchy does not execute a theme's setup scripts automatically.
+Use the setup above for the complete theme experience.
+
+Already have a checkout? Update it, then run `bash install.sh` again.
 
 ## Wallpapers
 
@@ -52,64 +59,51 @@ Created with the built-in imagegen tool. The original prompt set used widescreen
 
 The eight additional prompts are recorded in [PROMPTS.md](PROMPTS.md). Each image was generated separately for this collection.
 
-## Optional independent wallpapers per monitor
-
-On Omarchy releases with the **Quickshell shell background plugin**, enable
-the add-on explicitly after installing the theme:
-
-```sh
-git clone https://github.com/RobbieUK1/omarchy-murder-of-crows.git
-cd omarchy-murder-of-crows
-bash scripts/install-randomizer.sh
-```
+## Built-in independent wallpapers per monitor
 
 Use the usual **Super + Ctrl + Space** picker or `omarchy theme bg next`.
-Confirming any image reshuffles all currently connected displays, including
-when you confirm the same picker image again. The clicked image is the trigger;
-it is not pinned to a particular monitor. Canceling the picker keeps the current
-arrangement. Connecting or disconnecting a monitor also reshuffles the set.
+Confirming an image reshuffles all connected displays, even when confirming
+the same image again. The clicked image is the trigger, not a pinned display
+choice. Canceling keeps the arrangement. Connecting or disconnecting a monitor
+also reshuffles it.
 
-The add-on chooses from this theme's still images and your additional images in
-`~/.config/omarchy/backgrounds/murder-of-crows/`. It avoids duplicate images
-across monitors when there are enough, and avoids each monitor's previous image
-when feasible. One image works normally; with fewer images than monitors,
-duplicates are necessary. Video files are excluded from the random pool.
-The normal current-background link remains the picker's selection, so lock-screen
-and other tools reading that link continue to see a single selected wallpaper.
+The pool includes theme stills and images in
+`~/.config/omarchy/backgrounds/murder-of-crows/`. Distinct images are used across
+monitors when enough exist, and each monitor changes its image whenever possible.
+Videos are excluded from the pool. The picker's selected image remains the normal
+current-background link for lock screens and other tools.
 
-This installs a user-owned `crows.background` clone of your installed stock
-renderer under `~/.config/omarchy/plugins/`. It retains the stock renderer's
-IPC, click handling, theme colors and behavior outside Murder of Crows.
-Randomized stills change directly rather than sharing the stock single-image
-reveal animation. No theme palette or artwork is modified.
+The theme ships `wallpaper-randomizer.json` and its renderer integration as part
+of the same package. Setup builds a user-owned renderer from your installed
+Omarchy version, retaining stock IPC, click handling and theme colors. Themes
+without this settings file use stock behavior. Randomized stills change directly.
+No palette, wallpaper artwork or packaged Omarchy files are modified.
 
-Requires Python 3 and the Omarchy shell/plugin commands. Older swaybg/swww
-installations and changed renderer source layouts fail the compatibility check
-before replacing anything. Existing custom background clones must be disabled
-first. Re-running the installer rebuilds from the installed Omarchy version
-and saves any previous `crows.background` directory as a timestamped backup.
-After an Omarchy update, rerun the installer to pick up renderer changes.
+Setup migrates the known Sunny OLED/PU renderer automatically and enables its
+working theme through the same shared renderer, retaining the previous plugin
+for restoration. Other custom renderer conflicts stop setup with an explanation.
+User configuration and any replaced theme/plugin are backed up under
+`~/.local/state/omarchy/backups/`. Re-run setup after Omarchy renderer updates.
+Unsupported source layouts fail before user configuration changes.
 
-Disable the add-on and restore the stock renderer:
+To disable the built-in integration and restore the previous renderer:
 
 ```sh
-bash scripts/install-randomizer.sh --remove
+bash install.sh --remove
 ```
 
-Disabling retains the plugin files and backups for recovery; it does not remove
-wallpapers or change the theme. Installing a theme alone does not run scripts.
+The theme and its wallpapers remain installed.
 
 ### Development checks
 
 ```sh
 node tests/randomize.test.cjs
 python3 -B -m unittest discover -s tests -v
-bash -n scripts/install-randomizer.sh
+bash -n install.sh scripts/install-randomizer.sh
 ```
 
 Tests cover repeated independent assignment, no avoidable duplicates/repeats,
-monitor-list changes, empty/single/short image pools, theme scoping, filename
-handling, and fail-closed generation against the locally installed renderer.
-A real multi-monitor Hyprland session should additionally be checked for picker
-confirmation/cancellation, restart, hotplug and switching to another theme.
-
+monitor-list changes, empty/single/short image pools, theme settings, filename
+handling, source compatibility, integrated installation, renderer migration and
+restoration. `omarchy-shell background randomizerStatus` reports active output
+assignments and renderer readiness for live checks.

@@ -10,6 +10,10 @@ def build(source, output, scripts):
     text = (source / 'Background.qml').read_text()
     replacements = {
         'import QtQuick\n': 'import QtQuick\nimport "Randomize.js" as CrowRandom\n',
+        '    target: "background"':
+            '    target: "background"\n\n    function randomizerStatus(): string {\n      return JSON.stringify({assignments: root.monitorBackgrounds, screens: backgrounds.instances.map(function(panel) { return {name: panel.screen.name, path: panel.renderedPath, ready: panel.backgroundReady} })})\n    }',
+        '      property bool maskReady: false':
+            '      readonly property string renderedPath: root.monitorBackgrounds[panel.screen.name] || root.displayedBackground\n      property bool maskReady: false',
         '    function set(path: string): void {':
             '    function set(path: string): void {\n      root.requestShuffle()',
         '    function setInstant(path: string): void {':

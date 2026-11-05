@@ -27,6 +27,8 @@ class PluginTests(unittest.TestCase):
             images.mkdir(parents=True)
             name = current / 'theme.name'
             name.write_text('murder-of-crows\n')
+            marker = current / 'theme/wallpaper-randomizer.json'
+            marker.write_text('{"version": 1, "enabled": true}')
             image = images / 'a space # sunny.PNG'
             image.touch()
             (images / 'alias.png').symlink_to(image)
@@ -37,6 +39,7 @@ class PluginTests(unittest.TestCase):
             (extra / 'extra.webp').touch()
             self.assertEqual(len(scanner.backgrounds(home)), 2)
             self.assertIn(str(image), scanner.backgrounds(home))
+            marker.unlink()
             name.write_text('tokyo-night')
             self.assertEqual(scanner.backgrounds(home), [])
             name.unlink()
@@ -63,6 +66,37 @@ class PluginTests(unittest.TestCase):
             self.assertEqual(manifest['omarchy']['clonedFrom'], 'omarchy.background')
             self.assertEqual(manifest['id'], 'crows.background')
             self.assertTrue((output / 'Randomize.js').exists())
+
+
+class SetupTests(unittest.TestCase):
+    def test_setup_migrates_previous_renderer_and_restore(self):
+        from unittest.mock import patch
+        installer = load('installer', 'install-theme.py')
+        with tempfile.TemporaryDirectory() as folder:
+            home = Path(folder) / 'home'
+            root = Path(folder) / 'checkout'
+            (root / 'backgrounds').mkdir(parents=True)
+            (root / 'backgrounds/test.png').touch()
+            (root / 'wallpaper-randomizer.json').write_text('{"version":1,"enabled":true}')
+            config = home / '.config/omarchy'
+            sunny = config / 'plugins/sunnyoled.background'
+            sunny.mkdir(parents=True)
+            (sunny / 'manifest.json').write_text('{"omarchy":{"clonedFrom":"omarchy.background"}}')
+            (config / 'themes/sunny-oled').mkdir(parents=True)
+            (config / 'shell.json').write_text('{"plugins":[{"id":"sunnyoled.background"}]}')
+            calls = []
+            def fake_run(*args):
+                calls.append(args)
+                return '[{"id":"crows.background"}]' if args[-1] == '--json' else 'ok'
+            with patch.object(installer.Path, 'home', return_value=home), patch.object(installer, 'ROOT', root), patch.object(installer, 'run', side_effect=fake_run):
+                installer.main()
+                self.assertTrue((config / 'themes/murder-of-crows/wallpaper-randomizer.json').exists())
+                self.assertTrue((config / 'themes/sunny-oled/wallpaper-randomizer.json').exists())
+                self.assertIn(('omarchy', 'plugin', 'disable', 'sunnyoled.background'), calls)
+                self.assertIn(('omarchy', 'plugin', 'enable', 'crows.background'), calls)
+                self.assertIn(('omarchy', 'theme', 'set', 'murder-of-crows'), calls)
+                installer.main(remove=True)
+                self.assertIn(('omarchy', 'plugin', 'enable', 'sunnyoled.background'), calls)
 
 
 if __name__ == '__main__':

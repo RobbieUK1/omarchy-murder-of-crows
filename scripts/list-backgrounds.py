@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Return the active theme's still images; never execute paths from the theme."""
+"""Read the active theme's declarative randomizer settings and still images."""
 import json
 from pathlib import Path
 
@@ -8,9 +8,12 @@ def backgrounds(home):
     current = home / '.local/state/omarchy/current'
     try:
         theme = (current / 'theme.name').read_text().strip()
-    except OSError:
-        return []
-    if theme != 'murder-of-crows':
+        if not theme or '/' in theme or theme in {'.', '..'}:
+            return []
+        settings = json.loads((current / 'theme/wallpaper-randomizer.json').read_text())
+        if settings.get('version') != 1 or settings.get('enabled') is not True:
+            return []
+    except (OSError, ValueError, AttributeError):
         return []
     files = set()
     for directory in (current / 'theme/backgrounds',
